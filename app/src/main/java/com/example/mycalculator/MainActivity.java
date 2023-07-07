@@ -3,21 +3,25 @@ package com.example.mycalculator;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
+{
 
-    private Button btn_0,btn_1,btn_2,btn_3,btn_4,btn_5,btn_6,btn_7,btn_8,btn_9,btn_dot,btn_plus,btn_minus,btn_mult,btn_div,btn_C,btn_equl;
+    private Button btn_0, btn_1, btn_2, btn_3, btn_4, btn_5, btn_6, btn_7, btn_8, btn_9, btn_dot, btn_plus, btn_minus, btn_mult, btn_div, btn_C, btn_equl, btn_per, btn_edit, btn_sqrt;
     private TextView calc_result;
     private Boolean isClickequ = false;
-    private double num1 = 0,num2 = 0,reslut = 0 ;
+    private double num0 = 0, num1 = 0, num2 = 0, reslut = 0;
     private String op = "";
-    private String strnum1,strnum2;
+    private String strnum0, strnum1, strnum2;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -39,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_div = findViewById(R.id.btn_div);
         btn_C = findViewById(R.id.btn_C);
         btn_equl = findViewById(R.id.btn_equl);
+        btn_per = findViewById(R.id.btn_per);
+        btn_edit = findViewById(R.id.btn_edit);
+        btn_sqrt = findViewById(R.id.btn_sqrt);
 
 
         btn_0.setOnClickListener(this);
@@ -58,10 +65,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_div.setOnClickListener(this);
         btn_C.setOnClickListener(this);
         btn_equl.setOnClickListener(this);
+        btn_per.setOnClickListener(this);
+        btn_edit.setOnClickListener(this);
+        btn_sqrt.setOnClickListener(this);
     }
 
     @Override
-    public void onClick(View view) {
+    public void onClick(View view)
+    {
         int id = view.getId();
         if (id == R.id.btn_0)
         {
@@ -78,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 calc_result.setText("");
                 isClickequ = false;
             }
-            calc_result.setText(calc_result.getText().toString() + "1");
+             calc_result.setText(calc_result.getText().toString() + "1");
         } else if (id == R.id.btn_2)
         {
             if (isClickequ)
@@ -158,7 +169,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 calc_result.setText("");
                 isClickequ = false;
             }
-            calc_result.setText(calc_result.getText().toString() + ".");
+            if (calc_result.getText().toString().contains("."))
+            {
+                calc_result.setText(calc_result.getText().toString());
+            } else
+            {
+                calc_result.setText(calc_result.getText().toString() + ".");
+            }
+        } else if (id == R.id.btn_edit)
+        {
+            isClickequ = false;
+            if (calc_result.getText().toString().contains("-"))
+            {
+                calc_result.setText(calc_result.getText().toString().substring(1));
+            } else
+            {
+                calc_result.setText("-" + calc_result.getText().toString());
+            }
+        } else if (id == R.id.btn_sqrt)
+        {
+            strnum0 = calc_result.getText().toString();
+            if (strnum0.equals(""))
+            {
+                return;
+            }
+            num0 = Double.parseDouble(strnum0);
+            if (num0 < 0) {
+                calc_result.setText("error");
+                Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            num0 = Math.sqrt(num0);
+            calc_result.setText(String.valueOf(num0));
+            isClickequ = false;
         } else if (id == R.id.btn_plus)
         {
             strnum1 = calc_result.getText().toString();
@@ -203,17 +246,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             calc_result.setText("");
             op = "/";
             isClickequ = false;
-        } else if (id == R.id.btn_equl)
+        } else if (id == R.id.btn_per)
         {
-            strnum2 = calc_result.getText().toString();
-            if (strnum2.equals(""))
+            strnum1 = calc_result.getText().toString();
+            if (strnum1.equals(""))
             {
                 return;
             }
-            num2 = Double.parseDouble(strnum2);
+            num1 = Double.parseDouble(strnum1);
             calc_result.setText("");
+            op = "%";
+            isClickequ = false;
+        } else if (id == R.id.btn_equl)
+        {
             double result = 0.0;
             String errResult = null;
+            strnum2 = calc_result.getText().toString();
+            num2 = Double.parseDouble(strnum2);
+            calc_result.setText("");
             switch (op)
             {
                 case "+":
@@ -233,6 +283,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     result = num1 / num2;
                     break;
+                case "%":
+                    if (num2 == 0)
+                    {
+                        errResult = "error";
+                        break;
+                    }
+                    int res = (int) (num1 % num2);
+                    result = (double) res;
+                    break;
                 default:
                     result = 0.0;
                     break;
@@ -240,12 +299,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (errResult == "error")
             {
                 calc_result.setText("error");
-            }
-            else
+            } else
             {
                 calc_result.setText(result + "");
             }
-            errResult = null;
             op = "";
             isClickequ = true;
         } else
